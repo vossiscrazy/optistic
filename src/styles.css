@@ -35,20 +35,54 @@
 body {
   background-color: var(--neutral-900);
   color: var(--neutral-100);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  margin: 0;
   padding: 2rem;
+  overflow: auto;
 }
 
-#root > div {
-  max-width: 800px;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+header {
+  width: 1200px;
+  margin: 0 auto 4rem auto;
+  border-bottom: 1px solid var(--neutral-700);
+  padding-bottom: 1.5rem;
 }
+
+.grid-container {
+  width: 1200px;
+  min-width: 1200px;
+  height: 900px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  gap: 2rem;
+  grid-template-areas:
+    ". inbox trash"
+    "watch todo later"
+    ". anti-todo next-day";
+}
+
+footer {
+  width: 1200px;
+  margin: 6rem auto 0 auto;
+  border-top: 1px solid var(--neutral-700);
+  padding-top: 1.5rem;
+}
+
+.list {
+  border: 1px solid var(--neutral-700);
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+
+.inbox { grid-area: inbox; }
+.trash { grid-area: trash; }
+.watch { grid-area: watch; }
+.todo { grid-area: todo; }
+.later { grid-area: later; }
+.anti-todo { grid-area: anti-todo; }
+.next-day { grid-area: next-day; }
 
 h1, h2, h3 {
   font-family: 'Cormorant', serif;
