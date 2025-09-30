@@ -16,11 +16,25 @@ This is a React + Vite project using React 19 with Fast Refresh via Babel. It's 
 ## Project Structure
 
 - `src/main.jsx` - Application entry point that mounts the root React component
-- `src/App.jsx` - Main application component
+- `src/App.jsx` - Main application component with drag-and-drop task lists
 - `src/styles.css` - Global stylesheet (imported after reset)
 - `src/reset.css` - Meyer CSS Reset v2.0
 - `src/assets/fonts/` - Custom fonts (Cormorant and Inter variable fonts)
 - `public/` - Static assets served directly
+
+## Application Architecture
+
+- **State Management**: Normalized state structure
+  - `tasks` object: Tasks indexed by ID with `{ id, content }` structure
+  - `lists` object: List names mapped to arrays of task IDs
+  - Enables efficient task updates and backend synchronization
+- **Layout**: Fixed 1200px × 900px grid (3×3) with 7 task lists
+  - Non-responsive: scrolls when viewport is too small
+  - Lists positioned via CSS Grid with `grid-template-areas`
+- **Drag and Drop**:
+  - Each list is a `<Droppable>` with unique droppableId
+  - Each task is a `<Draggable>` with unique draggableId and index
+  - `onDragEnd` handles within-list and between-list reordering
 
 ## Configuration
 
@@ -30,6 +44,7 @@ This is a React + Vite project using React 19 with Fast Refresh via Babel. It's 
   - Custom rule: unused vars allowed if they start with uppercase or underscore (`varsIgnorePattern: '^[A-Z_]'`)
   - Ignores `dist/` directory
 - **React Version**: 19.1.1 with StrictMode enabled
+- **Drag and Drop**: `@hello-pangea/dnd` for task management between lists
 
 ## Design System
 
