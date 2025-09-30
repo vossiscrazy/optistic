@@ -1,61 +1,141 @@
+import { useState } from 'react'
+import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd'
+
+const initialTasks = {
+  'task-1': { id: 'task-1', content: 'Review AI safety research' },
+  'task-2': { id: 'task-2', content: 'Update autonomous systems protocol' },
+  'task-3': { id: 'task-3', content: 'Schedule team sync on acceleration metrics' },
+  'task-4': { id: 'task-4', content: 'Old meeting notes' },
+  'task-5': { id: 'task-5', content: 'Deprecated feature specs' },
+  'task-6': { id: 'task-6', content: 'Monitor compute cluster performance' },
+  'task-7': { id: 'task-7', content: 'Track competitor model releases' },
+  'task-8': { id: 'task-8', content: 'Review quarterly progress metrics' },
+  'task-9': { id: 'task-9', content: 'Ship v2 model improvements' },
+  'task-10': { id: 'task-10', content: 'Optimize inference pipeline' },
+  'task-11': { id: 'task-11', content: 'Write technical documentation' },
+  'task-12': { id: 'task-12', content: 'Review pull requests' },
+  'task-13': { id: 'task-13', content: 'Research new architecture patterns' },
+  'task-14': { id: 'task-14', content: 'Plan Q3 roadmap' },
+  'task-15': { id: 'task-15', content: 'Explore multi-modal capabilities' },
+  'task-16': { id: 'task-16', content: 'Launched production deployment' },
+  'task-17': { id: 'task-17', content: 'Completed security audit' },
+  'task-18': { id: 'task-18', content: 'Fixed critical performance bug' },
+  'task-19': { id: 'task-19', content: 'Merged feature branch' },
+  'task-20': { id: 'task-20', content: 'Start benchmark evaluation' },
+  'task-21': { id: 'task-21', content: 'Begin infrastructure migration' },
+  'task-22': { id: 'task-22', content: 'Draft proposal for new initiative' },
+}
+
+const initialLists = {
+  inbox: ['task-1', 'task-2', 'task-3'],
+  trash: ['task-4', 'task-5'],
+  watch: ['task-6', 'task-7', 'task-8'],
+  todo: ['task-9', 'task-10', 'task-11', 'task-12'],
+  later: ['task-13', 'task-14', 'task-15'],
+  'anti-todo': ['task-16', 'task-17', 'task-18', 'task-19'],
+  'next-day': ['task-20', 'task-21', 'task-22'],
+}
+
+const listMetadata = {
+  inbox: { title: 'Inbox', className: 'inbox' },
+  trash: { title: 'Trash', className: 'trash' },
+  watch: { title: 'Watch', className: 'watch' },
+  todo: { title: 'Todo', className: 'todo' },
+  later: { title: 'Later', className: 'later' },
+  'anti-todo': { title: 'Anti-Todo', className: 'anti-todo' },
+  'next-day': { title: 'Next Day', className: 'next-day' },
+}
+
 function App() {
+  const [tasks, setTasks] = useState(initialTasks)
+  const [lists, setLists] = useState(initialLists)
+
+  const onDragEnd = (result) => {
+    const { source, destination } = result
+
+    // Dropped outside a valid droppable
+    if (!destination) {
+      return
+    }
+
+    // No movement
+    if (source.droppableId === destination.droppableId && source.index === destination.index) {
+      return
+    }
+
+    const sourceList = lists[source.droppableId]
+    const destList = lists[destination.droppableId]
+
+    // Moving within the same list
+    if (source.droppableId === destination.droppableId) {
+      const newList = Array.from(sourceList)
+      const [removed] = newList.splice(source.index, 1)
+      newList.splice(destination.index, 0, removed)
+
+      setLists({
+        ...lists,
+        [source.droppableId]: newList,
+      })
+    } else {
+      // Moving between lists
+      const newSourceList = Array.from(sourceList)
+      const newDestList = Array.from(destList)
+      const [removed] = newSourceList.splice(source.index, 1)
+      newDestList.splice(destination.index, 0, removed)
+
+      setLists({
+        ...lists,
+        [source.droppableId]: newSourceList,
+        [destination.droppableId]: newDestList,
+      })
+    }
+  }
+
   return (
     <>
       <header>
         <h1>Optistic</h1>
       </header>
 
-      <div className="grid-container">
-      <div className="list inbox">
-        <h3>Inbox</h3>
-        <p>Review AI safety research</p>
-        <p>Update autonomous systems protocol</p>
-        <p>Schedule team sync on acceleration metrics</p>
-      </div>
+      <DragDropContext onDragEnd={onDragEnd}>
+        <div className="grid-container">
+          {Object.keys(listMetadata).map((listId) => {
+            const metadata = listMetadata[listId]
+            const taskIds = lists[listId]
 
-      <div className="list trash">
-        <h3>Trash</h3>
-        <p>Old meeting notes</p>
-        <p>Deprecated feature specs</p>
-      </div>
-
-      <div className="list watch">
-        <h3>Watch</h3>
-        <p>Monitor compute cluster performance</p>
-        <p>Track competitor model releases</p>
-        <p>Review quarterly progress metrics</p>
-      </div>
-
-      <div className="list todo">
-        <h3>Todo</h3>
-        <p>Ship v2 model improvements</p>
-        <p>Optimize inference pipeline</p>
-        <p>Write technical documentation</p>
-        <p>Review pull requests</p>
-      </div>
-
-      <div className="list later">
-        <h3>Later</h3>
-        <p>Research new architecture patterns</p>
-        <p>Plan Q3 roadmap</p>
-        <p>Explore multi-modal capabilities</p>
-      </div>
-
-      <div className="list anti-todo">
-        <h3>Anti-Todo</h3>
-        <p>Launched production deployment</p>
-        <p>Completed security audit</p>
-        <p>Fixed critical performance bug</p>
-        <p>Merged feature branch</p>
-      </div>
-
-      <div className="list next-day">
-        <h3>Next Day</h3>
-        <p>Start benchmark evaluation</p>
-        <p>Begin infrastructure migration</p>
-        <p>Draft proposal for new initiative</p>
-      </div>
-      </div>
+            return (
+              <Droppable key={listId} droppableId={listId}>
+                {(provided, snapshot) => (
+                  <div
+                    ref={provided.innerRef}
+                    {...provided.droppableProps}
+                    className={`list ${metadata.className}`}
+                  >
+                    <h3>{metadata.title}</h3>
+                    {taskIds.map((taskId, index) => {
+                      const task = tasks[taskId]
+                      return (
+                        <Draggable key={task.id} draggableId={task.id} index={index}>
+                          {(provided, snapshot) => (
+                            <p
+                              ref={provided.innerRef}
+                              {...provided.draggableProps}
+                              {...provided.dragHandleProps}
+                            >
+                              {task.content}
+                            </p>
+                          )}
+                        </Draggable>
+                      )
+                    })}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            )
+          })}
+        </div>
+      </DragDropContext>
 
       <footer>
         <p>© 2025 Optistic</p>
