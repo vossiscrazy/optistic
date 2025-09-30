@@ -116,19 +116,28 @@ function App() {
                       const task = tasks[taskId]
                       return (
                         <Draggable key={task.id} draggableId={task.id} index={index}>
-                          {(provided, snapshot) => (
-                            <p
-                              ref={provided.innerRef}
-                              {...provided.draggableProps}
-                              {...provided.dragHandleProps}
-                              style={{
-                                opacity: snapshot.isDragging ? 0.5 : 1,
-                                ...provided.draggableProps.style,
-                              }}
-                            >
-                              {task.content}
-                            </p>
-                          )}
+                          {(provided, snapshot) => {
+                            const style = {
+                              opacity: snapshot.isDragging ? 0.5 : 1,
+                              ...provided.draggableProps.style,
+                            }
+
+                            // Disable drop animation
+                            if (snapshot.isDropAnimating) {
+                              style.transitionDuration = '0.001s'
+                            }
+
+                            return (
+                              <p
+                                ref={provided.innerRef}
+                                {...provided.draggableProps}
+                                {...provided.dragHandleProps}
+                                style={style}
+                              >
+                                {task.content}
+                              </p>
+                            )
+                          }}
                         </Draggable>
                       )
                     })}

@@ -73,6 +73,7 @@ footer {
 .list {
   border: 1px solid var(--neutral-700);
   padding: 1.5rem;
+  min-height: 100px;
 }
 
 .inbox { grid-area: inbox; }
