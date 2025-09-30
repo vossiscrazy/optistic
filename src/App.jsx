@@ -121,6 +121,10 @@ function App() {
                               ref={provided.innerRef}
                               {...provided.draggableProps}
                               {...provided.dragHandleProps}
+                              style={{
+                                opacity: snapshot.isDragging ? 0.5 : 1,
+                                ...provided.draggableProps.style,
+                              }}
                             >
                               {task.content}
                             </p>
@@ -128,7 +132,9 @@ function App() {
                         </Draggable>
                       )
                     })}
-                    {provided.placeholder}
+                    <div style={{ opacity: 0 }}>
+                      {provided.placeholder}
+                    </div>
                   </div>
                 )}
               </Droppable>
