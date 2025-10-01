@@ -124,3 +124,27 @@ p {
 .list p:last-of-type {
   margin-bottom: 0;
 }
+
+.task-input-form {
+  margin-bottom: 0.75rem;
+}
+
+.task-input {
+  width: 100%;
+  box-sizing: border-box;
+  background-color: var(--neutral-900);
+  border: 1px solid var(--neutral-700);
+  color: var(--neutral-100);
+  padding: 1rem;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 1rem;
+  outline: none;
+}
+
+.task-input::placeholder {
+  color: var(--neutral-500);
+}
+
+.task-input:focus {
+  border-color: var(--neutral-500);
+}

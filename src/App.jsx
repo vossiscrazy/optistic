@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd'
+import { supabase } from './supabaseClient'
 
 const initialTasks = {
   'task-1': { id: 'task-1', content: 'Review AI safety research' },
@@ -47,11 +48,60 @@ const listMetadata = {
 }
 
 function App() {
-  const [tasks, setTasks] = useState(initialTasks)
-  const [lists, setLists] = useState(initialLists)
+  const [tasks, setTasks] = useState({})
+  const [lists, setLists] = useState({
+    inbox: [],
+    trash: [],
+    watch: [],
+    todo: [],
+    later: [],
+    'anti-todo': [],
+    'next-day': [],
+  })
+  const [loading, setLoading] = useState(true)
 
-  const onDragEnd = (result) => {
-    const { source, destination } = result
+  // Load tasks from Supabase on mount
+  useEffect(() => {
+    loadTasks()
+  }, [])
+
+  const loadTasks = async () => {
+    const { data, error } = await supabase
+      .from('tasks')
+      .select('*')
+      .order('position')
+
+    if (error) {
+      console.error('Error loading tasks:', error)
+      return
+    }
+
+    // Convert to normalized state structure
+    const tasksById = {}
+    const listsByName = {
+      inbox: [],
+      trash: [],
+      watch: [],
+      todo: [],
+      later: [],
+      'anti-todo': [],
+      'next-day': [],
+    }
+
+    data.forEach((task) => {
+      tasksById[task.id] = task
+      if (listsByName[task.list_id]) {
+        listsByName[task.list_id].push(task.id)
+      }
+    })
+
+    setTasks(tasksById)
+    setLists(listsByName)
+    setLoading(false)
+  }
+
+  const onDragEnd = async (result) => {
+    const { source, destination, draggableId } = result
 
     // Dropped outside a valid droppable
     if (!destination) {
@@ -76,6 +126,9 @@ function App() {
         ...lists,
         [source.droppableId]: newList,
       })
+
+      // Update positions in database
+      await updateTaskPositions(newList, source.droppableId)
     } else {
       // Moving between lists
       const newSourceList = Array.from(sourceList)
@@ -88,7 +141,63 @@ function App() {
         [source.droppableId]: newSourceList,
         [destination.droppableId]: newDestList,
       })
+
+      // Update task's list_id in database
+      await supabase
+        .from('tasks')
+        .update({ list_id: destination.droppableId, position: destination.index })
+        .eq('id', draggableId)
+
+      // Update positions in both lists
+      await updateTaskPositions(newSourceList, source.droppableId)
+      await updateTaskPositions(newDestList, destination.droppableId)
     }
+  }
+
+  const updateTaskPositions = async (taskIds, listId) => {
+    const updates = taskIds.map((taskId, index) => ({
+      id: taskId,
+      position: index,
+      list_id: listId,
+    }))
+
+    for (const update of updates) {
+      await supabase
+        .from('tasks')
+        .update({ position: update.position, list_id: update.list_id })
+        .eq('id', update.id)
+    }
+  }
+
+  const handleAddTask = async (e) => {
+    e.preventDefault()
+    const form = e.target
+    const input = form.elements.taskContent
+    const content = input.value.trim()
+
+    if (!content) return
+
+    const { data, error } = await supabase
+      .from('tasks')
+      .insert({
+        content,
+        list_id: 'inbox',
+        position: lists.inbox.length,
+      })
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Error creating task:', error)
+      return
+    }
+
+    // Update local state
+    setTasks({ ...tasks, [data.id]: data })
+    setLists({ ...lists, inbox: [...lists.inbox, data.id] })
+
+    // Clear input
+    input.value = ''
   }
 
   return (
@@ -112,6 +221,16 @@ function App() {
                     className={`list ${metadata.className}`}
                   >
                     <h3>{metadata.title}</h3>
+                    {listId === 'inbox' && (
+                      <form onSubmit={handleAddTask} className="task-input-form">
+                        <input
+                          type="text"
+                          name="taskContent"
+                          placeholder="Add a task..."
+                          className="task-input"
+                        />
+                      </form>
+                    )}
                     {taskIds.map((taskId, index) => {
                       const task = tasks[taskId]
                       return (
