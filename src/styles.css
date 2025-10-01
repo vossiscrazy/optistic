@@ -100,6 +100,7 @@ footer {
   border: 1px solid var(--neutral-700);
   padding: 1.5rem;
   min-height: 100px;
+  background-color: var(--neutral-900);
 }
 
 .inbox { grid-area: inbox; }
@@ -167,13 +168,13 @@ p {
 .focus-button.active {
   border-color: transparent;
   background-color: transparent;
-  opacity: 0.6;
+  opacity: 1;
 }
 
 .focus-button.active:hover {
   border-color: transparent;
   background-color: transparent;
-  opacity: 1;
+  opacity: 0.5;
 }
 
 .focus-button.active:active {
@@ -186,30 +187,29 @@ p {
   display: block;
 }
 
-.focus-button.active .focus-icon {
-  filter: invert(47%) sepia(52%) saturate(5473%) hue-rotate(339deg) brightness(96%) contrast(88%);
-}
-
-.focus-button.active:hover .focus-icon {
-  filter: invert(47%) sepia(52%) saturate(5473%) hue-rotate(339deg) brightness(96%) contrast(88%);
-}
-
-.list.blurred {
-  filter: blur(4px);
-  opacity: 0.3;
-  pointer-events: none;
-  transition: all 0.3s ease;
+.list {
+  position: relative;
 }
 
 .list.focused {
-  transition: all 0.3s ease;
+  position: relative;
+  z-index: 1002 !important;
 }
 
-header.blurred,
-footer.blurred {
-  filter: blur(4px);
-  opacity: 0.3;
-  transition: all 0.3s ease;
+.task-focused {
+  position: relative;
+  z-index: 1002 !important;
+}
+
+.focus-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 999;
 }
 
 .task-item {
@@ -221,6 +221,7 @@ footer.blurred {
   align-items: center;
   gap: 0.75rem;
   position: relative;
+  cursor: pointer;
 }
 
 .drag-handle {
@@ -242,7 +243,6 @@ footer.blurred {
 
 .task-content {
   flex: 1;
-  cursor: pointer;
 }
 
 .important-task {
@@ -265,6 +265,7 @@ footer.blurred {
   border: 1px solid var(--neutral-700);
   padding: 0.5rem;
   z-index: 100;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
 }
 
 .task-menu::after {
@@ -281,8 +282,7 @@ footer.blurred {
 
 .task-menu-item {
   background-color: var(--neutral-900);
-  border: 1px solid var(--gold-800);
-  color: var(--gold-500);
+  border: 1px solid;
   padding: 0.75rem 1.5rem;
   width: 100%;
   text-align: left;
@@ -291,11 +291,56 @@ footer.blurred {
   font-size: 1rem;
   transition: all 0.2s;
   white-space: nowrap;
+  display: flex;
+  align-items: center;
 }
 
-.task-menu-item:hover {
+.task-menu-item-important {
+  border-color: var(--gold-800);
+  color: var(--gold-500);
+  margin-top: 0.5rem;
+}
+
+.task-menu-item-important:hover {
   background-color: var(--gold-950);
   color: var(--gold-400);
+}
+
+.task-menu-item-focus {
+  border-color: var(--neutral-700);
+  color: var(--neutral-100);
+}
+
+.task-menu-item-focus:hover {
+  background-color: var(--neutral-800);
+  border-color: var(--neutral-600);
+}
+
+.task-menu-item-focus.active {
+  border-color: var(--neutral-600);
+  color: var(--neutral-200);
+}
+
+.task-menu-item-focus.active:hover {
+  background-color: var(--neutral-800);
+  border-color: var(--neutral-700);
+  color: var(--neutral-100);
+}
+
+.menu-icon {
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  margin-right: 0.5rem;
+  flex-shrink: 0;
+}
+
+.task-menu-item-important .menu-icon {
+  filter: brightness(0) saturate(100%) invert(65%) sepia(45%) saturate(450%) hue-rotate(11deg) brightness(95%) contrast(85%);
+}
+
+.task-menu-item-important:hover .menu-icon {
+  filter: brightness(0) saturate(100%) invert(75%) sepia(35%) saturate(500%) hue-rotate(11deg) brightness(100%) contrast(90%);
 }
 
 .task-input-form {

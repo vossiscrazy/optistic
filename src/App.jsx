@@ -3,6 +3,7 @@ import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd'
 import { supabase } from './supabaseClient'
 import DragHandleIcon from './components/icons/DragHandleIcon'
 import FocusIcon from './components/icons/FocusIcon'
+import ImportantIcon from './components/icons/ImportantIcon'
 
 const initialTasks = {
   'task-1': { id: 'task-1', content: 'Review AI safety research' },
@@ -63,6 +64,7 @@ function App() {
   const [loading, setLoading] = useState(true)
   const [openMenuTaskId, setOpenMenuTaskId] = useState(null)
   const [focusedListId, setFocusedListId] = useState(null)
+  const [focusedTaskId, setFocusedTaskId] = useState(null)
 
   // Load tasks from Supabase on mount
   useEffect(() => {
@@ -263,19 +265,32 @@ function App() {
     setFocusedListId(focusedListId === listId ? null : listId)
   }
 
+  const handleFocusTask = (taskId) => {
+    setFocusedTaskId(focusedTaskId === taskId ? null : taskId)
+    setOpenMenuTaskId(null)
+  }
+
   return (
     <>
-      <header className={focusedListId ? 'blurred' : ''}>
+      {(focusedListId || focusedTaskId) && (
+        <div
+          className="focus-overlay"
+          onClick={() => {
+            setFocusedListId(null)
+            setFocusedTaskId(null)
+          }}
+        />
+      )}
+      <header>
         <h1>Optistic</h1>
       </header>
 
       <DragDropContext onDragEnd={onDragEnd}>
-        <div className="grid-container">
+        <div className="grid-container" onClick={() => setOpenMenuTaskId(null)}>
           {Object.keys(listMetadata).map((listId) => {
             const metadata = listMetadata[listId]
             const taskIds = lists[listId]
             const isFocused = focusedListId === listId
-            const isBlurred = focusedListId && !isFocused
 
             return (
               <Droppable key={listId} droppableId={listId}>
@@ -283,8 +298,7 @@ function App() {
                   <div
                     ref={provided.innerRef}
                     {...provided.droppableProps}
-                    className={`list ${metadata.className} ${isBlurred ? 'blurred' : ''} ${isFocused ? 'focused' : ''}`}
-                    onClick={() => focusedListId && !isFocused && setFocusedListId(null)}
+                    className={`list ${metadata.className} ${isFocused ? 'focused' : ''}`}
                   >
                     <div className="list-header">
                       <h3>{metadata.title}</h3>
@@ -323,30 +337,45 @@ function App() {
                               style.transitionDuration = '0.001s'
                             }
 
+                            const isTaskFocused = focusedTaskId === task.id
+
                             return (
                               <div
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
                                 style={style}
-                                className={`task-item ${listId === 'anti-todo' ? 'anti-todo-task' : ''} ${task.important ? 'important-task' : ''}`}
+                                className={`task-item ${listId === 'anti-todo' ? 'anti-todo-task' : ''} ${task.important ? 'important-task' : ''} ${isTaskFocused ? 'task-focused' : ''}`}
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleTaskClick(task.id)
+                                }}
                               >
-                                <div
-                                  className="task-content"
-                                  onClick={() => handleTaskClick(task.id)}
-                                >
+                                <div className="task-content">
                                   {task.content}
                                 </div>
                                 {openMenuTaskId === task.id && (
-                                  <div className="task-menu">
+                                  <div className="task-menu" onClick={(e) => e.stopPropagation()}>
                                     <button
-                                      className="task-menu-item"
+                                      className={`task-menu-item task-menu-item-focus ${isTaskFocused ? 'active' : ''}`}
+                                      onClick={() => handleFocusTask(task.id)}
+                                    >
+                                      <FocusIcon className="menu-icon" />
+                                      {isTaskFocused ? 'Unfocus' : 'Focus'}
+                                    </button>
+                                    <button
+                                      className="task-menu-item task-menu-item-important"
                                       onClick={() => handleToggleImportant(task.id)}
                                     >
+                                      <ImportantIcon />
                                       {task.important ? 'Unmark Important' : 'Mark Important'}
                                     </button>
                                   </div>
                                 )}
-                                <div {...provided.dragHandleProps} className="drag-handle">
+                                <div
+                                  {...provided.dragHandleProps}
+                                  className="drag-handle"
+                                  onClick={(e) => e.stopPropagation()}
+                                >
                                   <DragHandleIcon />
                                 </div>
                               </div>
@@ -371,7 +400,7 @@ function App() {
         </div>
       </DragDropContext>
 
-      <footer className={focusedListId ? 'blurred' : ''}>
+      <footer>
         <p>© 2025 Optistic</p>
       </footer>
     </>

@@ -1,11 +1,11 @@
 import focusIcon from './focus.svg'
 
-function FocusIcon() {
+function FocusIcon({ className = 'focus-icon' }) {
   return (
     <img
       src={focusIcon}
       alt="Focus"
-      className="focus-icon"
+      className={className}
     />
   )
 }
