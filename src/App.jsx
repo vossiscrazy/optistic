@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd'
 import { supabase } from './supabaseClient'
+import DragHandleIcon from './components/icons/DragHandleIcon'
 
 const initialTasks = {
   'task-1': { id: 'task-1', content: 'Review AI safety research' },
@@ -273,15 +274,19 @@ function App() {
                             }
 
                             return (
-                              <p
+                              <div
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
-                                {...provided.dragHandleProps}
                                 style={style}
-                                className={listId === 'anti-todo' ? 'anti-todo-task' : ''}
+                                className={`task-item ${listId === 'anti-todo' ? 'anti-todo-task' : ''}`}
                               >
-                                {task.content}
-                              </p>
+                                <div className="task-content">
+                                  {task.content}
+                                </div>
+                                <div {...provided.dragHandleProps} className="drag-handle">
+                                  <DragHandleIcon />
+                                </div>
+                              </div>
                             )
                           }}
                         </Draggable>

@@ -127,15 +127,40 @@ p {
   margin-bottom: 1.5rem;
 }
 
-.list p {
+.task-item {
   border: 1px solid var(--neutral-700);
   background-color: var(--neutral-900);
   padding: 1rem;
   margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 
-.list p:last-of-type {
-  margin-bottom: 0;
+.drag-handle {
+  cursor: grab;
+  display: flex;
+  align-items: center;
+  opacity: 0.5;
+  transition: opacity 0.2s;
+}
+
+.drag-handle:hover {
+  opacity: 1;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+.drag-handle-icon {
+  width: 20px;
+  height: 20px;
+  display: block;
+}
+
+.task-content {
+  flex: 1;
 }
 
 .task-input-form {
@@ -186,7 +211,7 @@ p {
   background-color: var(--red-900);
 }
 
-.anti-todo-task {
+.anti-todo-task .task-content {
   text-decoration: line-through;
   opacity: 0.6;
   color: var(--neutral-400);
