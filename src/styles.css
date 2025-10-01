@@ -243,7 +243,8 @@ h3 {
   gap: 0.75rem;
   position: relative;
   cursor: pointer;
-  overflow: hidden;
+  overflow: visible;
+  user-select: none;
 }
 
 @keyframes shimmer {
@@ -313,7 +314,7 @@ h3 {
   background-color: var(--neutral-900);
   border: 1px solid var(--neutral-700);
   padding: 0.5rem;
-  z-index: 100;
+  z-index: 1000;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
 }
 
