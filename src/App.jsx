@@ -152,6 +152,14 @@ function App() {
         [destination.droppableId]: newDestList,
       })
 
+      // Trigger shimmer effect if moved to anti-todo list
+      if (destination.droppableId === 'anti-todo') {
+        setShimmerTaskId(draggableId)
+        setTimeout(() => {
+          setShimmerTaskId(null)
+        }, 1600)
+      }
+
       // Update task's list_id in database
       await supabase
         .from('tasks')
@@ -161,14 +169,6 @@ function App() {
       // Update positions in both lists
       await updateTaskPositions(newSourceList, source.droppableId)
       await updateTaskPositions(newDestList, destination.droppableId)
-
-      // Trigger shimmer effect if moved to anti-todo list
-      if (destination.droppableId === 'anti-todo') {
-        setShimmerTaskId(draggableId)
-        setTimeout(() => {
-          setShimmerTaskId(null)
-        }, 400)
-      }
     }
   }
 
