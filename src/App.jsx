@@ -278,6 +278,7 @@ function App() {
                                 {...provided.draggableProps}
                                 {...provided.dragHandleProps}
                                 style={style}
+                                className={listId === 'anti-todo' ? 'anti-todo-task' : ''}
                               >
                                 {task.content}
                               </p>

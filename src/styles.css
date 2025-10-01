@@ -185,3 +185,9 @@ p {
 .empty-trash-button:active {
   background-color: var(--red-900);
 }
+
+.anti-todo-task {
+  text-decoration: line-through;
+  opacity: 0.6;
+  color: var(--neutral-400);
+}
