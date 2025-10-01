@@ -30,6 +30,19 @@
   --neutral-800: #262626;
   --neutral-900: #171717;
   --neutral-950: #0a0a0a;
+
+  /* Red palette from Tailwind CSS */
+  --red-50: #fef2f2;
+  --red-100: #fee2e2;
+  --red-200: #fecaca;
+  --red-300: #fca5a5;
+  --red-400: #f87171;
+  --red-500: #ef4444;
+  --red-600: #dc2626;
+  --red-700: #b91c1c;
+  --red-800: #991b1b;
+  --red-900: #7f1d1d;
+  --red-950: #450a0a;
 }
 
 body {
@@ -147,4 +160,28 @@ p {
 
 .task-input:focus {
   border-color: var(--neutral-500);
+}
+
+.empty-trash-button {
+  width: 100%;
+  box-sizing: border-box;
+  background-color: var(--neutral-900);
+  border: 1px solid var(--red-800);
+  color: var(--red-500);
+  padding: 1rem;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 0.75rem;
+}
+
+.empty-trash-button:hover {
+  border-color: var(--red-600);
+  color: var(--red-400);
+  background-color: var(--red-950);
+}
+
+.empty-trash-button:active {
+  background-color: var(--red-900);
 }

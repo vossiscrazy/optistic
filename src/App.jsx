@@ -200,6 +200,32 @@ function App() {
     input.value = ''
   }
 
+  const handleEmptyTrash = async () => {
+    const trashTaskIds = lists.trash
+
+    if (trashTaskIds.length === 0) return
+
+    // Delete all tasks in trash from database
+    const { error } = await supabase
+      .from('tasks')
+      .delete()
+      .in('id', trashTaskIds)
+
+    if (error) {
+      console.error('Error emptying trash:', error)
+      return
+    }
+
+    // Update local state
+    const newTasks = { ...tasks }
+    trashTaskIds.forEach(taskId => {
+      delete newTasks[taskId]
+    })
+
+    setTasks(newTasks)
+    setLists({ ...lists, trash: [] })
+  }
+
   return (
     <>
       <header>
@@ -260,6 +286,11 @@ function App() {
                         </Draggable>
                       )
                     })}
+                    {listId === 'trash' && taskIds.length > 0 && (
+                      <button onClick={handleEmptyTrash} className="empty-trash-button">
+                        Empty Trash ({taskIds.length})
+                      </button>
+                    )}
                     <div style={{ opacity: 0 }}>
                       {provided.placeholder}
                     </div>
