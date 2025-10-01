@@ -286,14 +286,14 @@ function App() {
                         </Draggable>
                       )
                     })}
+                    <div style={{ opacity: 0 }}>
+                      {provided.placeholder}
+                    </div>
                     {listId === 'trash' && taskIds.length > 0 && (
                       <button onClick={handleEmptyTrash} className="empty-trash-button">
                         Empty Trash ({taskIds.length})
                       </button>
                     )}
-                    <div style={{ opacity: 0 }}>
-                      {provided.placeholder}
-                    </div>
                   </div>
                 )}
               </Droppable>
