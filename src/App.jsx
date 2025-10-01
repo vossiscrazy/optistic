@@ -60,6 +60,7 @@ function App() {
     'next-day': [],
   })
   const [loading, setLoading] = useState(true)
+  const [openMenuTaskId, setOpenMenuTaskId] = useState(null)
 
   // Load tasks from Supabase on mount
   useEffect(() => {
@@ -227,6 +228,35 @@ function App() {
     setLists({ ...lists, trash: [] })
   }
 
+  const handleTaskClick = (taskId) => {
+    setOpenMenuTaskId(openMenuTaskId === taskId ? null : taskId)
+  }
+
+  const handleToggleImportant = async (taskId) => {
+    const task = tasks[taskId]
+    const newImportant = !task.important
+
+    // Update in database
+    const { error } = await supabase
+      .from('tasks')
+      .update({ important: newImportant })
+      .eq('id', taskId)
+
+    if (error) {
+      console.error('Error updating task:', error)
+      return
+    }
+
+    // Update local state
+    setTasks({
+      ...tasks,
+      [taskId]: { ...task, important: newImportant }
+    })
+
+    // Close menu
+    setOpenMenuTaskId(null)
+  }
+
   return (
     <>
       <header>
@@ -278,11 +308,24 @@ function App() {
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
                                 style={style}
-                                className={`task-item ${listId === 'anti-todo' ? 'anti-todo-task' : ''}`}
+                                className={`task-item ${listId === 'anti-todo' ? 'anti-todo-task' : ''} ${task.important ? 'important-task' : ''}`}
                               >
-                                <div className="task-content">
+                                <div
+                                  className="task-content"
+                                  onClick={() => handleTaskClick(task.id)}
+                                >
                                   {task.content}
                                 </div>
+                                {openMenuTaskId === task.id && (
+                                  <div className="task-menu">
+                                    <button
+                                      className="task-menu-item"
+                                      onClick={() => handleToggleImportant(task.id)}
+                                    >
+                                      {task.important ? 'Unmark Important' : 'Mark Important'}
+                                    </button>
+                                  </div>
+                                )}
                                 <div {...provided.dragHandleProps} className="drag-handle">
                                   <DragHandleIcon />
                                 </div>
