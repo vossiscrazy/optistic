@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd'
 import { supabase } from './supabaseClient'
 import DragHandleIcon from './components/icons/DragHandleIcon'
+import FocusIcon from './components/icons/FocusIcon'
 
 const initialTasks = {
   'task-1': { id: 'task-1', content: 'Review AI safety research' },
@@ -61,6 +62,7 @@ function App() {
   })
   const [loading, setLoading] = useState(true)
   const [openMenuTaskId, setOpenMenuTaskId] = useState(null)
+  const [focusedListId, setFocusedListId] = useState(null)
 
   // Load tasks from Supabase on mount
   useEffect(() => {
@@ -257,9 +259,13 @@ function App() {
     setOpenMenuTaskId(null)
   }
 
+  const handleToggleFocus = (listId) => {
+    setFocusedListId(focusedListId === listId ? null : listId)
+  }
+
   return (
     <>
-      <header>
+      <header className={focusedListId ? 'blurred' : ''}>
         <h1>Optistic</h1>
       </header>
 
@@ -268,6 +274,8 @@ function App() {
           {Object.keys(listMetadata).map((listId) => {
             const metadata = listMetadata[listId]
             const taskIds = lists[listId]
+            const isFocused = focusedListId === listId
+            const isBlurred = focusedListId && !isFocused
 
             return (
               <Droppable key={listId} droppableId={listId}>
@@ -275,9 +283,21 @@ function App() {
                   <div
                     ref={provided.innerRef}
                     {...provided.droppableProps}
-                    className={`list ${metadata.className}`}
+                    className={`list ${metadata.className} ${isBlurred ? 'blurred' : ''} ${isFocused ? 'focused' : ''}`}
+                    onClick={() => focusedListId && !isFocused && setFocusedListId(null)}
                   >
-                    <h3>{metadata.title}</h3>
+                    <div className="list-header">
+                      <h3>{metadata.title}</h3>
+                      <button
+                        className={`focus-button ${isFocused ? 'active' : ''}`}
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          handleToggleFocus(listId)
+                        }}
+                      >
+                        <FocusIcon />
+                      </button>
+                    </div>
                     {listId === 'inbox' && (
                       <form onSubmit={handleAddTask} className="task-input-form">
                         <input
@@ -351,7 +371,7 @@ function App() {
         </div>
       </DragDropContext>
 
-      <footer>
+      <footer className={focusedListId ? 'blurred' : ''}>
         <p>© 2025 Optistic</p>
       </footer>
     </>

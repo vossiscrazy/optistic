@@ -136,8 +136,80 @@ p {
   line-height: 1.6;
 }
 
-.list h3 {
+.list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 1.5rem;
+}
+
+.list-header h3 {
+  margin: 0;
+}
+
+.focus-button {
+  background: none;
+  border: 1px solid transparent;
+  padding: 0.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  opacity: 0.5;
+}
+
+.focus-button:hover {
+  border-color: transparent;
+  opacity: 1;
+}
+
+.focus-button.active {
+  border-color: transparent;
+  background-color: transparent;
+  opacity: 0.6;
+}
+
+.focus-button.active:hover {
+  border-color: transparent;
+  background-color: transparent;
+  opacity: 1;
+}
+
+.focus-button.active:active {
+  background-color: transparent;
+}
+
+.focus-icon {
+  width: 20px;
+  height: 20px;
+  display: block;
+}
+
+.focus-button.active .focus-icon {
+  filter: invert(47%) sepia(52%) saturate(5473%) hue-rotate(339deg) brightness(96%) contrast(88%);
+}
+
+.focus-button.active:hover .focus-icon {
+  filter: invert(47%) sepia(52%) saturate(5473%) hue-rotate(339deg) brightness(96%) contrast(88%);
+}
+
+.list.blurred {
+  filter: blur(4px);
+  opacity: 0.3;
+  pointer-events: none;
+  transition: all 0.3s ease;
+}
+
+.list.focused {
+  transition: all 0.3s ease;
+}
+
+header.blurred,
+footer.blurred {
+  filter: blur(4px);
+  opacity: 0.3;
+  transition: all 0.3s ease;
 }
 
 .task-item {
