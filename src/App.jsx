@@ -4,6 +4,9 @@ import { supabase } from './supabaseClient'
 import DragHandleIcon from './components/icons/DragHandleIcon'
 import FocusIcon from './components/icons/FocusIcon'
 import ImportantIcon from './components/icons/ImportantIcon'
+import TrashIcon from './components/icons/TrashIcon'
+import InboxIcon from './components/icons/InboxIcon'
+import InboxEmptyIcon from './components/icons/InboxEmptyIcon'
 
 const initialTasks = {
   'task-1': { id: 'task-1', content: 'Review AI safety research' },
@@ -65,6 +68,7 @@ function App() {
   const [openMenuTaskId, setOpenMenuTaskId] = useState(null)
   const [focusedListId, setFocusedListId] = useState(null)
   const [focusedTaskId, setFocusedTaskId] = useState(null)
+  const [shimmerTaskId, setShimmerTaskId] = useState(null)
 
   // Load tasks from Supabase on mount
   useEffect(() => {
@@ -157,6 +161,14 @@ function App() {
       // Update positions in both lists
       await updateTaskPositions(newSourceList, source.droppableId)
       await updateTaskPositions(newDestList, destination.droppableId)
+
+      // Trigger shimmer effect if moved to anti-todo list
+      if (destination.droppableId === 'anti-todo') {
+        setShimmerTaskId(draggableId)
+        setTimeout(() => {
+          setShimmerTaskId(null)
+        }, 400)
+      }
     }
   }
 
@@ -301,16 +313,24 @@ function App() {
                     className={`list ${metadata.className} ${isFocused ? 'focused' : ''}`}
                   >
                     <div className="list-header">
-                      <h3>{metadata.title}</h3>
-                      <button
-                        className={`focus-button ${isFocused ? 'active' : ''}`}
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          handleToggleFocus(listId)
-                        }}
-                      >
-                        <FocusIcon />
-                      </button>
+                      <div className="list-title">
+                        {listId === 'inbox' && (
+                          taskIds.length === 0 ? <InboxEmptyIcon /> : <InboxIcon />
+                        )}
+                        {listId === 'trash' && <TrashIcon />}
+                        <h3>{metadata.title}</h3>
+                      </div>
+                      {listId !== 'trash' && listId !== 'anti-todo' && (
+                        <button
+                          className={`focus-button ${isFocused ? 'active' : ''}`}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleToggleFocus(listId)
+                          }}
+                        >
+                          <FocusIcon />
+                        </button>
+                      )}
                     </div>
                     {listId === 'inbox' && (
                       <form onSubmit={handleAddTask} className="task-input-form">
@@ -338,13 +358,14 @@ function App() {
                             }
 
                             const isTaskFocused = focusedTaskId === task.id
+                            const isShimmer = shimmerTaskId === task.id
 
                             return (
                               <div
                                 ref={provided.innerRef}
                                 {...provided.draggableProps}
                                 style={style}
-                                className={`task-item ${listId === 'anti-todo' ? 'anti-todo-task' : ''} ${task.important ? 'important-task' : ''} ${isTaskFocused ? 'task-focused' : ''}`}
+                                className={`task-item ${listId === 'anti-todo' ? 'anti-todo-task' : ''} ${task.important ? 'important-task' : ''} ${isTaskFocused ? 'task-focused' : ''} ${isShimmer ? 'shimmer' : ''}`}
                                 onClick={(e) => {
                                   e.stopPropagation()
                                   handleTaskClick(task.id)
@@ -391,6 +412,44 @@ function App() {
                       <button onClick={handleEmptyTrash} className="empty-trash-button">
                         Empty Trash ({taskIds.length})
                       </button>
+                    )}
+                    {taskIds.length === 0 && listId === 'trash' && (
+                      <div className="empty-list-message">
+                        If it doesn't go in your Todo, Watch or Later list, it goes away.
+                      </div>
+                    )}
+                    {taskIds.length === 0 && listId === 'todo' && (
+                      <div className="empty-list-message">
+                        Must-do commitments, obligations, things that have to be done.
+                      </div>
+                    )}
+                    {taskIds.length === 0 && listId === 'watch' && (
+                      <div className="empty-list-message">
+                        Stuff you have to follow up on, wait for someone else to get back to you on or, or otherwise remember.
+                      </div>
+                    )}
+                    {taskIds.length === 0 && listId === 'later' && (
+                      <div className="empty-list-message">
+                        Everything else—everything you might want to do or will do when you have time or wish you could do.
+                      </div>
+                    )}
+                    {taskIds.length === 0 && listId === 'inbox' && (
+                      <div className="empty-list-message">
+                        Get everything out of your head—even if it might end up in the trash.
+                      </div>
+                    )}
+                    {taskIds.length === 0 && listId === 'next-day' && (
+                      <div className="empty-list-message">
+                        Each night before you go to bed, add 3 to 5 things that you will do the next day.
+                        <br />
+                        <br />
+                        And then, the next day, do those things.
+                      </div>
+                    )}
+                    {taskIds.length === 0 && listId === 'anti-todo' && (
+                      <div className="empty-list-message">
+                        Every time you do something—anything—useful during the day, move it to your Anti-Todo list.
+                      </div>
                     )}
                   </div>
                 )}
